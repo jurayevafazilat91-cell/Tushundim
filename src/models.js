@@ -1,0 +1,14 @@
+import mongoose from 'mongoose';
+const {Schema, model}=mongoose;
+const userSchema=new Schema({name:{type:String,required:true},email:{type:String,required:true,unique:true},password:{type:String,required:true,select:false},role:{type:String,enum:['student','parent','admin'],required:true},parentId:{type:Schema.Types.ObjectId,ref:'User',default:null},grade:{type:Number,default:6},topic:{type:String,default:'fractions'},plan:{type:String,enum:['free','plus','family'],default:'free'},planUntil:Date,blocked:{type:Boolean,default:false},telegramChat:{type:String,select:false},telegramEnabled:{type:Boolean,default:false}}, {timestamps:true});
+export const User=model('User',userSchema);
+export const Session=model('Session',new Schema({token:{type:String,unique:true},userId:Schema.Types.ObjectId,expires:{type:Date,index:{expires:0}}}));
+export const Invite=model('Invite',new Schema({token:{type:String,unique:true},userId:Schema.Types.ObjectId,kind:String,expires:{type:Date,index:{expires:0}}}));
+export const Attempt=model('Attempt',new Schema({userId:{type:Schema.Types.ObjectId,index:true},key:{type:String,unique:true},kind:String,day:String,topic:String,level:Number,questions:Array,answers:Array,score:Number,total:Number,status:{type:String,default:'open'},finishedAt:Date},{timestamps:true}));
+export const Activity=model('Activity',new Schema({userId:{type:Schema.Types.ObjectId,index:true},type:String,text:String},{timestamps:true}));
+export const Chat=model('Chat',new Schema({userId:{type:Schema.Types.ObjectId,index:true},title:String,messages:[{role:String,content:String}]},{timestamps:true}));
+export const Usage=model('Usage',new Schema({key:{type:String,unique:true},count:{type:Number,default:0},expires:{type:Date,index:{expires:0}}}));
+export const Order=model('Order',new Schema({userId:Schema.Types.ObjectId,plan:String,amount:Number,status:{type:String,default:'pending'},reference:String,reviewer:Schema.Types.ObjectId,reviewedAt:Date},{timestamps:true}));
+export const Outbox=model('Outbox',new Schema({parentId:Schema.Types.ObjectId,childId:Schema.Types.ObjectId,text:String,status:{type:String,default:'pending'},tries:{type:Number,default:0},nextAt:{type:Date,default:Date.now},error:String},{timestamps:true}));
+export const BotState=model('BotState',new Schema({_id:String,offset:Number}));
+export const Audit=model('Audit',new Schema({actor:Schema.Types.ObjectId,action:String,target:String},{timestamps:true}));
